@@ -1,0 +1,2 @@
+timestamp,power_kw,energy_kwh,irradiance_w_m2,ambient_temp_c,module_temp_c,voltage_v,current_a,inverter_status
+,,,,,,,,

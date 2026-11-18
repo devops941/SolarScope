@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  /* SolarScope Design Tokens */
+  --color-deep-teal: #123247;
+  --color-primary-teal: #137C70;
+  --color-solar-green: #2BA784;
+  --color-pale-mint: #E4F5EF;
+  --color-canvas: #F3F7F8;
+  --color-surface: #ffffff;
+  --color-app-text: #20323D;
+  --color-muted: #617580;
+  --color-warning: #D99136;
+  --color-danger: #C84F55;
+  --color-border: #D9E3E7;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-card: 12px;
+}
+
+:root {
+  --background: #F3F7F8;
+  --foreground: #20323D;
+  --sidebar-width: 248px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9E3E7;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #617580;
+}
