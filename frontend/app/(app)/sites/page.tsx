@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Search, MapPin, RefreshCw, Zap, Sparkles, Activity, CheckCircle2, ArrowRight } from "lucide-react";
+import { Plus, Search, MapPin, RefreshCw, Zap, Activity } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import SiteForm from "@/features/sites/SiteForm";
 import { useSites, useArchiveSite } from "@/features/sites/useSites";
-import { useDemoSeed } from "@/features/demo/useDemoSeed";
 
 export default function SitesPage() {
   const [search, setSearch] = useState("");
@@ -16,7 +15,6 @@ export default function SitesPage() {
 
   const { data, isLoading, error, refetch } = useSites();
   const archiveMutation = useArchiveSite();
-  const { seedDemo, isSeeding, successMessage, error: seedError } = useDemoSeed();
 
   const sites = data?.items ?? [];
   const filtered = sites.filter((s) =>
@@ -26,7 +24,7 @@ export default function SitesPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1400px] mx-auto">
+      <div className="w-full space-y-6">
         <div className="h-8 w-32 bg-canvas rounded animate-pulse mb-5" />
         <SkeletonTable rows={5} />
       </div>
@@ -35,7 +33,7 @@ export default function SitesPage() {
 
   if (error) {
     return (
-      <div className="max-w-[1400px] mx-auto">
+      <div className="w-full space-y-6">
         <div className="rounded-xl border border-danger/30 bg-red-50 p-6 text-sm text-danger">
           Failed to load sites. {error.message}
           <button onClick={() => refetch()} className="ml-3 underline">Retry</button>
@@ -45,27 +43,7 @@ export default function SitesPage() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Success Notification */}
-      {successMessage && (
-        <div className="flex items-center justify-between rounded-xl bg-pale-mint border border-solar-green/30 px-4 py-3 text-sm text-deep-teal">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-solar-green shrink-0" />
-            <span className="font-medium">{successMessage}</span>
-          </div>
-          <Link href="/dashboard" className="flex items-center gap-1 font-semibold text-primary-teal hover:underline text-xs">
-            Open Dashboard <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      )}
-
-      {/* Seed Error Notification */}
-      {seedError && (
-        <div className="rounded-xl bg-red-50 border border-danger/30 px-4 py-3 text-sm text-danger">
-          Failed to load demo data: {seedError}
-        </div>
-      )}
-
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -87,25 +65,6 @@ export default function SitesPage() {
             className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-muted hover:bg-canvas transition"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-
-          {/* Quick Demo Seeder Button */}
-          <button
-            onClick={() => seedDemo()}
-            disabled={isSeeding}
-            className="flex items-center gap-1.5 rounded-lg border border-solar-green/40 bg-pale-mint/70 px-3.5 py-2 text-sm font-medium text-primary-teal hover:bg-pale-mint transition disabled:opacity-50"
-          >
-            {isSeeding ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin text-primary-teal" />
-                <span>Seeding Demo Data…</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 text-solar-green" />
-                <span>Load Demo Farm</span>
-              </>
-            )}
           </button>
 
           <button
@@ -173,34 +132,22 @@ export default function SitesPage() {
           <p className="text-sm text-muted max-w-md mx-auto mb-6">
             {search
               ? "Try adjusting your search terms or clear the filter."
-              : "Get started right away by loading a pre-configured 25 kWp Solar Farm with 30 days of clean telemetry, or create a new site from scratch."}
+              : "Get started by creating your solar plant installation, then upload inverter CSV logs."}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
-              onClick={() => seedDemo()}
-              disabled={isSeeding}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition disabled:opacity-50"
-            >
-              {isSeeding ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Loading Demo Farm…</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 text-solar-green" />
-                  <span>⚡ Load 30-Day Demo Solar Plant</span>
-                </>
-              )}
-            </button>
-
-            <button
               onClick={() => setCreateOpen(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition"
+            >
+              <Plus className="h-4 w-4" /> Create Solar Site
+            </button>
+            <Link
+              href="/imports/new"
               className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-app-text hover:bg-canvas transition"
             >
-              <Plus className="h-4 w-4" /> Create Custom Site
-            </button>
+              Go to Upload CSV
+            </Link>
           </div>
         </div>
       ) : (

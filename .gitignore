@@ -1,11 +1,139 @@
-node_modules/
-frontend/node_modules/
-.next/
-frontend/.next/
-__pycache__/
-*.pyc
-.pytest_cache/
-.DS_Store
-*.pem
-.env*
+# ==============================================================================
+# SolarScope - Git Ignore Rules
+# Covers: Python (FastAPI), Node.js (Next.js), Environments, OS, IDEs & Uploads
+# ==============================================================================
+
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+# Never commit credentials, API keys, or connection strings to git
+.env
+.env.*
+*.env
+backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Preserve example templates for developers cloning the project
 !.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# SSL & Security keys
+*.pem
+*.key
+*.cert
+*.crt
+
+# ── Python & FastAPI Backend ──────────────────────────────────────────────────
+# Bytecode and runtime caches
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.pytest_cache/
+*/.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking & Linter caches
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# Packaging / Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ── Node.js & Next.js Frontend ────────────────────────────────────────────────
+# Package dependencies
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# Next.js build and export outputs
+.next/
+*/.next/
+out/
+*/out/
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Vercel deployment cache
+.vercel/
+
+# ── File Uploads, Logs & Temp Directories ─────────────────────────────────────
+# Upload directories and runtime generated files
+solarscope_uploads/
+*/solarscope_uploads/
+uploads/
+*/uploads/
+tmp/
+temp/
+logs/
+*.log
+
+# Generated test/export reports (keep templates & blueprints tracked)
+/backend/app/reports/generated/*
+/reports_output/
+*.pdf.tmp
+
+# ── Operating System Artifacts ────────────────────────────────────────────────
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── IDEs & Code Editors ───────────────────────────────────────────────────────
+# Visual Studio Code (ignore user workspace settings, keep recommended extensions)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains (PyCharm, WebStorm, etc.)
+.idea/
+
+# Sublime Text / Vim
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~

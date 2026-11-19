@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, BackgroundTasks, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, Header
 from fastapi.responses import FileResponse, Response
 from app.core.permissions import get_current_user, get_workspace_id, require_role
 from app.core.errors import NotFoundError
@@ -64,10 +64,29 @@ async def get_report_endpoint(
 @router.get("/{report_id}/download", summary="Download completed report file")
 async def download_report(
     report_id: str,
-    workspace_id: str = Depends(get_workspace_id),
-    user: dict = Depends(get_current_user),
+    token: str | None = Query(default=None, description="Auth token for direct browser downloads"),
+    authorization: str | None = Header(default=None),
 ):
-    """Download the generated report file. Requires report status = ready."""
+    """Download the generated report file. Supports Bearer header or ?token= query param."""
+    raw_token = token
+    if not raw_token and authorization and authorization.startswith("Bearer "):
+        raw_token = authorization.removeprefix("Bearer ").strip()
+    if not raw_token:
+        from app.core.errors import UnauthorizedError
+        raise UnauthorizedError("Missing authentication token")
+
+    from app.core.security import decode_token
+    try:
+        payload = decode_token(raw_token)
+    except Exception as exc:
+        from app.core.errors import UnauthorizedError
+        raise UnauthorizedError(str(exc))
+
+    workspace_id = payload.get("workspace_id")
+    if not workspace_id:
+        from app.core.errors import UnauthorizedError
+        raise UnauthorizedError("No workspace context in token")
+
     file_path = await get_download_path(workspace_id, report_id)
     if not os.path.exists(file_path):
         raise NotFoundError("Report file not found on disk")

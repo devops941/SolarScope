@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, ChevronDown, ChevronRight, RefreshCw, Sparkles, CheckCircle2, ShieldAlert, ArrowRight } from "lucide-react";
+import { Bell, ChevronDown, ChevronRight, RefreshCw, ShieldAlert, ArrowRight } from "lucide-react";
 import StatusBadge, { alertSeverityVariant } from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { useAlerts, useAlertCounts, useUpdateAlertStatus, type Alert } from "@/features/alerts/useAlerts";
-import { useDemoSeed } from "@/features/demo/useDemoSeed";
 import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS = ["all", "open", "acknowledged", "resolved"];
@@ -41,7 +40,6 @@ export default function AlertsPage() {
   });
   const { data: counts } = useAlertCounts();
   const updateMutation = useUpdateAlertStatus();
-  const { seedDemo, isSeeding, successMessage } = useDemoSeed();
 
   const alerts = data?.items ?? [];
 
@@ -53,7 +51,7 @@ export default function AlertsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1100px] mx-auto">
+      <div className="w-full space-y-6">
         <div className="h-8 w-32 bg-canvas rounded animate-pulse mb-5" />
         <SkeletonTable rows={4} />
       </div>
@@ -61,15 +59,7 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto space-y-6">
-      {/* Notification */}
-      {successMessage && (
-        <div className="flex items-center gap-2 rounded-xl bg-pale-mint border border-solar-green/30 px-4 py-3 text-sm text-deep-teal">
-          <CheckCircle2 className="h-4 w-4 text-solar-green shrink-0" />
-          <span className="font-medium">{successMessage}</span>
-        </div>
-      )}
-
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -91,24 +81,6 @@ export default function AlertsPage() {
             className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-muted hover:bg-canvas transition"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-
-          <button
-            onClick={() => seedDemo()}
-            disabled={isSeeding}
-            className="flex items-center gap-1.5 rounded-lg border border-solar-green/30 bg-pale-mint/80 px-3.5 py-2 text-sm font-semibold text-primary-teal hover:bg-pale-mint transition disabled:opacity-50"
-          >
-            {isSeeding ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin text-primary-teal" />
-                <span>Generating Alerts…</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 text-solar-green" />
-                <span>⚡ Load Sample Alerts</span>
-              </>
-            )}
           </button>
         </div>
       </div>
@@ -184,20 +156,18 @@ export default function AlertsPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => seedDemo()}
-              disabled={isSeeding}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition disabled:opacity-50"
-            >
-              <Sparkles className="h-4 w-4 text-solar-green" />
-              <span>⚡ Load Sample Alerts & Telemetry</span>
-            </button>
-
             <Link
               href="/analytics"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-app-text hover:bg-canvas transition"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition"
             >
               <span>Run AI Anomaly Detection</span> <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/imports/new"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-app-text hover:bg-canvas transition"
+            >
+              <span>Upload New Telemetry</span>
             </Link>
           </div>
         </div>

@@ -32,3 +32,10 @@ class UsersRepository(BaseRepository):
             {"_id": to_object_id(user_id)},
             {"$set": {"last_login_at": datetime.now(timezone.utc)}},
         )
+
+    async def update_password_hash(self, user_id: str, password_hash: str) -> None:
+        from app.repositories.base import to_object_id
+        await self.col.update_one(
+            {"_id": to_object_id(user_id)},
+            {"$set": {"password_hash": password_hash, "updated_at": datetime.now(timezone.utc)}},
+        )

@@ -7,10 +7,25 @@ from app.services import systems as systems_svc
 router = APIRouter(tags=["systems"])
 
 
+@router.get(
+    "/systems",
+    response_model=list[SystemResponse],
+    summary="List all solar systems across workspace",
+)
+async def list_all_systems(
+    site_id: str | None = None,
+    workspace_id: str = Depends(get_workspace_id),
+    user: dict = Depends(get_current_user),
+):
+    systems = await systems_svc.list_all_systems(workspace_id, site_id)
+    return [_serialize(s) for s in systems]
+
+
 def _serialize(sys: dict) -> dict:
     return {
         "id": sys["id"],
         "site_id": sys.get("site_id", ""),
+        "site_name": sys.get("site_name"),
         "workspace_id": sys.get("workspace_id", ""),
         "name": sys["name"],
         "dc_capacity_kwp": sys["dc_capacity_kwp"],

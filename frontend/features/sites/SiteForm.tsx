@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiClient } from "@/lib/api-client";
 import { useCreateSite, useUpdateSite, type Site } from "./useSites";
 
 const TIMEZONES = [
@@ -18,6 +19,7 @@ const schema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   timezone: z.string().min(1, "Timezone is required"),
   address: z.string().optional(),
+  initial_dc_capacity_kwp: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -36,23 +38,45 @@ export default function SiteForm({ open, onClose, site }: SiteFormProps) {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<FormValues>({
       resolver: zodResolver(schema),
-      defaultValues: { name: "", timezone: "Asia/Kolkata", address: "" },
+      defaultValues: { name: "", timezone: "Asia/Kolkata", address: "", initial_dc_capacity_kwp: "25.0" },
     });
 
   useEffect(() => {
     if (site) {
-      reset({ name: site.name, timezone: site.timezone, address: site.address ?? "" });
+      reset({ name: site.name, timezone: site.timezone, address: site.address ?? "", initial_dc_capacity_kwp: "" });
     } else {
-      reset({ name: "", timezone: "Asia/Kolkata", address: "" });
+      reset({ name: "", timezone: "Asia/Kolkata", address: "", initial_dc_capacity_kwp: "25.0" });
     }
   }, [site, reset]);
 
   async function onSubmit(values: FormValues) {
     try {
       if (isEdit) {
-        await updateMutation.mutateAsync(values);
+        await updateMutation.mutateAsync({
+          name: values.name,
+          timezone: values.timezone,
+          address: values.address,
+        });
       } else {
-        await createMutation.mutateAsync(values);
+        const createdSite = await createMutation.mutateAsync({
+          name: values.name,
+          timezone: values.timezone,
+          address: values.address,
+        });
+        const cap = values.initial_dc_capacity_kwp ? Number(values.initial_dc_capacity_kwp) : 25.0;
+        if (cap > 0 && createdSite?.id) {
+          try {
+            await apiClient.post(`/sites/${createdSite.id}/systems`, {
+              name: `${values.name} - Array 1`,
+              dc_capacity_kwp: cap,
+              ac_capacity_kw: Math.round(cap * 0.9 * 10) / 10,
+              tilt_degrees: 15,
+              azimuth_degrees: 180,
+            });
+          } catch {
+            // non-fatal if array creation fails
+          }
+        }
       }
       onClose();
     } catch {
@@ -132,6 +156,25 @@ export default function SiteForm({ open, onClose, site }: SiteFormProps) {
               className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-app-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary-teal"
             />
           </div>
+
+          {!isEdit && (
+            <div>
+              <label className="block text-sm font-medium text-app-text mb-1.5">
+                Initial Solar Array Capacity (kWp)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                {...register("initial_dc_capacity_kwp")}
+                placeholder="25.0"
+                className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-app-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary-teal"
+              />
+              <p className="text-xs text-muted mt-1">
+                Creates a default solar array for CSV imports. Default: 25.0 kWp.
+              </p>
+            </div>
+          )}
         </form>
 
         {/* Footer */}

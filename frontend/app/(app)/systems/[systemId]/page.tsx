@@ -15,7 +15,7 @@ export default function SystemDetailPage({ params }: { params: { systemId: strin
 
   if (isLoading) {
     return (
-      <div className="max-w-[1000px] mx-auto space-y-4">
+      <div className="w-full space-y-4">
         <div className="h-5 w-24 bg-canvas rounded animate-pulse" />
         <SkeletonCard />
         <div className="grid grid-cols-2 gap-4">
@@ -27,7 +27,7 @@ export default function SystemDetailPage({ params }: { params: { systemId: strin
 
   if (!system) {
     return (
-      <div className="max-w-[1000px] mx-auto">
+      <div className="w-full">
         <Link href="/sites" className="flex items-center gap-1 text-sm text-muted hover:text-app-text mb-4">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Sites
         </Link>
@@ -51,7 +51,7 @@ export default function SystemDetailPage({ params }: { params: { systemId: strin
   ];
 
   return (
-    <div className="max-w-[1000px] mx-auto space-y-5">
+    <div className="w-full space-y-5">
       {/* Header */}
       <div>
         <Link href="/sites" className="flex items-center gap-1 text-sm text-muted hover:text-app-text mb-3">

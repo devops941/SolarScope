@@ -21,6 +21,7 @@ export const qk = {
     detail: (id: string) => ["sites", id] as const,
   },
   systems: {
+    all: (siteId?: string) => ["systems", "all", siteId] as const,
     bySite: (siteId: string) => ["systems", "site", siteId] as const,
     detail: (id: string) => ["systems", id] as const,
   },

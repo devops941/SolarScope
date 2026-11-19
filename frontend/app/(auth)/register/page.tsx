@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeSlash, CircleNotch, WarningCircle } from "@phosphor-icons/react";
+import { Zap, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/features/auth/useAuth";
 
 export default function RegisterPage() {
@@ -43,124 +43,172 @@ export default function RegisterPage() {
   const displayError = formError || error;
 
   return (
-    <div className="relative min-h-screen bg-paper text-ink flex flex-col justify-between py-8 px-6 font-sans select-none">
-      <header className="max-w-md w-full mx-auto">
-        <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink uppercase">
-          SOLARSCOPE
-        </h1>
-        <p className="font-mono text-[11px] uppercase tracking-widest text-muted mt-1">
-          NEW WORKSPACE ONBOARDING
-        </p>
-      </header>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden bg-gradient-to-br from-[#EAF2F4] via-[#F3F7F8] to-[#E3EFEA]">
+      {/* Ambient background energy orbs */}
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-solar-green/15 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -left-32 w-[30rem] h-[30rem] rounded-full bg-primary-teal/20 blur-3xl pointer-events-none" />
 
-      <main className="max-w-md w-full mx-auto my-auto py-6">
-        <div className="bg-surface border border-rule p-8 rounded-[2px] shadow-xs">
-          <div className="border-b border-rule pb-4 mb-6">
-            <h2 className="font-display text-lg font-bold text-ink uppercase tracking-tight">
-              CREATE WORKSPACE
-            </h2>
-            <p className="font-sans text-xs text-muted mt-1">
-              Initialize a clean solar telemetry workspace
-            </p>
+      {/* Main Split Neumorphic Card */}
+      <div className="w-full max-w-[1020px] min-h-[640px] rounded-[32px] bg-white shadow-[0_30px_70px_-15px_rgba(18,50,71,0.22)] border border-white/80 overflow-hidden flex flex-col lg:flex-row relative z-10">
+        {/* ── LEFT PANEL: Welcome Back Brand Panel ── */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 lg:p-14 relative overflow-hidden bg-gradient-to-br from-[#0D212F] via-[#137C70] to-[#2BA784] text-white">
+          <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full border border-white/10 bg-white/5 blur-xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full border border-emerald-400/20 bg-solar-green/10 blur-2xl pointer-events-none" />
+
+          {/* Top Status */}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-3.5 py-1 text-xs font-semibold text-emerald-200 border border-white/20">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Plant Onboarding</span>
+            </div>
+            <span className="text-xs font-mono text-white/50">v2.4</span>
           </div>
 
-          {displayError && (
-            <div className="mb-5 rounded-[2px] border border-magenta/40 bg-magenta-wash px-3.5 py-2.5 text-xs font-mono text-magenta-deep flex items-start gap-2">
-              <WarningCircle size={16} weight="bold" className="shrink-0 mt-0.5 text-magenta" />
-              <span>{displayError}</span>
-            </div>
-          )}
+          {/* Center Welcome Back */}
+          <div className="relative z-10 my-auto py-8 text-center space-y-4">
+            <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              One Step<br />
+              <span className="text-emerald-300 drop-shadow-sm">To Energy Insights!</span>
+            </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={set("name")}
-                placeholder="Gokul Analyst"
-                className="w-full rounded-[2px] border border-rule bg-paper px-3.5 py-2 text-sm font-sans text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
-              />
-            </div>
+            <p className="text-sm text-white/80 max-w-sm mx-auto leading-relaxed">
+              Create your organization workspace to monitor inverter telemetries and performance ratios.
+            </p>
 
-            <div>
-              <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
-                Workspace Name
-              </label>
-              <input
-                type="text"
-                value={form.workspace_name}
-                onChange={set("workspace_name")}
-                placeholder="Chennai Solar Plant"
-                className="w-full rounded-[2px] border border-rule bg-paper px-3.5 py-2 text-sm font-sans text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
-              />
+            <div className="pt-4">
+              <p className="text-xs font-medium text-white/70 mb-3 uppercase tracking-wider">
+                Already Have An Account?
+              </p>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-white/40 bg-white/10 backdrop-blur-md px-10 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg hover:bg-white/20 hover:border-white active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>SIGN IN</span>
+              </Link>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
-                Work Email
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={set("email")}
-                placeholder="gokul@solarscope.local"
-                className="w-full rounded-[2px] border border-rule bg-paper px-3.5 py-2 text-sm font-sans text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
-              />
+          {/* Bottom standards */}
+          <div className="relative z-10 border-t border-white/15 pt-5 text-center text-xs text-white/70">
+            Certified IEC 61724 Standard Compliant Architecture
+          </div>
+        </div>
+
+        {/* ── RIGHT PANEL: Soft Neumorphic Sign-Up Form ── */}
+        <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-14 flex flex-col justify-between bg-[#F8FAFC]">
+          <div>
+            {/* Top brand */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary-teal to-solar-green text-white shadow-md shadow-solar-green/20">
+                <Zap className="h-5 w-5" />
+              </div>
+              <span className="text-base font-bold text-app-text tracking-tight">
+                SolarScope
+              </span>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
-                Password
-              </label>
-              <div className="relative">
+            {/* Title */}
+            <div className="text-center my-4">
+              <h2 className="text-3xl font-extrabold text-app-text tracking-tight">
+                Create Account
+              </h2>
+              <p className="text-xs text-muted mt-1">
+                Enter your details to register a new solar workspace
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {displayError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 shadow-xs">
+                {displayError}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Full Name */}
+              <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={set("name")}
+                  placeholder="Full Name"
+                  autoComplete="name"
+                  required
+                  className="w-full bg-transparent px-5 py-3 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={set("email")}
+                  placeholder="Work Email"
+                  autoComplete="email"
+                  required
+                  className="w-full bg-transparent px-5 py-3 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
+                />
+              </div>
+
+              {/* Workspace Name */}
+              <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
+                <input
+                  type="text"
+                  value={form.workspace_name}
+                  onChange={set("workspace_name")}
+                  placeholder="Workspace Name (e.g. Chennai Solar Plant)"
+                  required
+                  className="w-full bg-transparent px-5 py-3 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={set("password")}
-                  placeholder="Min. 8 characters"
-                  className="w-full rounded-[2px] border border-rule bg-paper pl-3.5 pr-10 py-2 text-sm font-mono text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
+                  placeholder="Password (min 8 characters)"
+                  autoComplete="new-password"
+                  required
+                  className="w-full bg-transparent px-5 py-3 pr-12 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-app-text transition"
                 >
-                  {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-2 rounded-[2px] bg-magenta hover:bg-magenta-deep text-white py-3 text-xs font-sans uppercase font-bold tracking-widest transition disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <CircleNotch size={14} className="animate-spin" />
-                  <span>INITIALIZING WORKSPACE…</span>
-                </>
-              ) : (
-                <span>CREATE WORKSPACE & ENTER</span>
-              )}
-            </button>
-          </form>
+              {/* Submit */}
+              <div className="pt-2 text-center">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-teal to-solar-green px-12 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-[0_10px_20px_-5px_rgba(19,124,112,0.4),0_4px_8px_rgba(43,167,132,0.2)] hover:brightness-105 active:scale-[0.98] disabled:opacity-60 transition-all cursor-pointer"
+                >
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <span>{loading ? "Creating Account…" : "SIGN UP"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
 
-          <div className="mt-6 pt-4 border-t border-rule text-center text-xs text-muted">
-            <span>Already have an account? </span>
-            <Link href="/login" className="font-semibold text-magenta-deep hover:underline">
-              Sign in →
-            </Link>
+          <div className="mt-6 pt-4 border-t border-border/60 text-center lg:hidden">
+            <p className="text-xs text-muted">
+              Already have an account?{" "}
+              <Link href="/login" className="font-bold text-primary-teal hover:underline">
+                Sign in
+              </Link>
+            </p>
           </div>
         </div>
-      </main>
-
-      <footer className="text-center font-mono text-xs text-muted">
-        © 2026 SolarScope · Perihelion Edge Almanac & Precision Instrument
-      </footer>
+      </div>
     </div>
   );
 }

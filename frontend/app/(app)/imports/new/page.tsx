@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, Loader2, Download } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Download, Plus, Zap, AlertCircle } from "lucide-react";
 import FileDropzone from "@/components/ui/FileDropzone";
 import CsvMappingTable from "@/components/imports/CsvMappingTable";
 import ImportPreviewTable from "@/components/imports/ImportPreviewTable";
 import { useSites } from "@/features/sites/useSites";
-import { useSystemsBySite } from "@/features/systems/useSystems";
+import { useSystemsBySite, useCreateSystem } from "@/features/systems/useSystems";
+import SystemForm from "@/features/systems/SystemForm";
 import { useUploadPreview, useConfirmImport, type PreviewResult } from "@/features/imports/useImports";
 import ImportProgress from "@/features/imports/ImportProgress";
 import { cn } from "@/lib/utils";
@@ -40,12 +41,46 @@ export default function ImportWizardPage() {
   const [mapping, setMapping] = useState<Array<{ source_column: string; canonical_column: string }>>([]);
   const [confirmedImportId, setConfirmedImportId] = useState<string | null>(null);
 
+  const [createSystemOpen, setCreateSystemOpen] = useState(false);
+  const [isQuickCreating, setIsQuickCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const { data: sitesData } = useSites();
   const { data: systems = [] } = useSystemsBySite(siteId);
+  const createSystemMutation = useCreateSystem(siteId);
   const uploadMutation = useUploadPreview();
   const confirmMutation = useConfirmImport();
 
   const sites = sitesData?.items ?? [];
+
+  // Auto-select system when available or created
+  useEffect(() => {
+    if (systems.length > 0 && !systemId) {
+      setSystemId(systems[0].id);
+    }
+  }, [systems, systemId]);
+
+  async function handleQuickCreateSystem() {
+    if (!siteId) return;
+    setIsQuickCreating(true);
+    setCreateError(null);
+    try {
+      const selectedSite = sites.find((s) => s.id === siteId);
+      const siteName = selectedSite ? selectedSite.name : "Solar";
+      const created = await createSystemMutation.mutateAsync({
+        name: `${siteName} - Array 1`,
+        dc_capacity_kwp: 25.0,
+        ac_capacity_kw: 22.5,
+        tilt_degrees: 15,
+        azimuth_degrees: 180,
+      });
+      setSystemId(created.id);
+    } catch (err: any) {
+      setCreateError(err?.message || "Failed to create solar system");
+    } finally {
+      setIsQuickCreating(false);
+    }
+  }
 
   async function runPreview() {
     if (!file || !siteId || !systemId) return;
@@ -136,31 +171,109 @@ export default function ImportWizardPage() {
         {/* Step 0: Choose Site/System */}
         {step === 0 && (
           <div className="space-y-5">
-            <h2 className="text-base font-semibold text-app-text">Choose Site & Solar System</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-app-text">Choose Site & Solar System</h2>
+              <Link
+                href="/sites"
+                className="text-xs text-primary-teal hover:underline font-medium"
+              >
+                + Manage Sites
+              </Link>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-app-text mb-1.5">Site</label>
               <select
                 value={siteId}
-                onChange={(e) => { setSiteId(e.target.value); setSystemId(""); }}
+                onChange={(e) => {
+                  setSiteId(e.target.value);
+                  setSystemId("");
+                  setCreateError(null);
+                }}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-teal"
               >
                 <option value="">Select a site…</option>
                 {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
+
             {siteId && (
-              <div>
-                <label className="block text-sm font-medium text-app-text mb-1.5">Solar System</label>
-                <select
-                  value={systemId}
-                  onChange={(e) => setSystemId(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-teal"
-                >
-                  <option value="">Select a system…</option>
-                  {systems.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name} ({s.dc_capacity_kwp} kWp)</option>
-                  ))}
-                </select>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-app-text">Solar System</label>
+                  <button
+                    type="button"
+                    onClick={() => setCreateSystemOpen(true)}
+                    className="flex items-center gap-1 text-xs font-semibold text-primary-teal hover:text-deep-teal transition"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Create New System
+                  </button>
+                </div>
+
+                {createError && (
+                  <div className="rounded-lg border border-danger/30 bg-red-50 p-3 text-xs text-danger">
+                    {createError}
+                  </div>
+                )}
+
+                {systems.length > 0 ? (
+                  <div className="space-y-2">
+                    <select
+                      value={systemId}
+                      onChange={(e) => setSystemId(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-teal"
+                    >
+                      <option value="">Select a system…</option>
+                      {systems.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name} ({s.dc_capacity_kwp} kWp DC)</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted">
+                      Telemetry logs will be normalized and linked to this solar array.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50/80 p-4 space-y-3">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-amber-900">No Solar System Found for this Site</p>
+                        <p className="text-xs text-amber-700 mt-0.5">
+                          Inverter telemetry readings must be attached to a solar array system (e.g. 25 kWp). You can create one right now:
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleQuickCreateSystem}
+                        disabled={isQuickCreating}
+                        className="flex items-center gap-1.5 rounded-lg bg-primary-teal px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-deep-teal transition disabled:opacity-50"
+                      >
+                        {isQuickCreating ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <span>Creating System…</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="h-3.5 w-3.5" />
+                            <span>⚡ Quick Add 25 kWp Solar Array</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setCreateSystemOpen(true)}
+                        className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-semibold text-app-text hover:bg-canvas transition"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Custom System Specifications…</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -402,6 +515,15 @@ export default function ImportWizardPage() {
           </button>
         )}
       </div>
+
+      {/* System Form Drawer */}
+      {siteId && (
+        <SystemForm
+          open={createSystemOpen}
+          onClose={() => setCreateSystemOpen(false)}
+          siteId={siteId}
+        />
+      )}
     </div>
   );
 }

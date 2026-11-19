@@ -115,6 +115,18 @@ async def list_systems(workspace_id: str, site_id: str) -> list[dict]:
     return await _systems.list_for_site(workspace_id, site_id)
 
 
+async def list_all_systems(workspace_id: str, site_id: str | None = None) -> list[dict]:
+    systems = await _systems.list_all(workspace_id, site_id)
+    site_names: dict[str, str] = {}
+    for s in systems:
+        sid = s.get("site_id")
+        if sid and sid not in site_names:
+            site = await _sites.get(workspace_id, sid)
+            site_names[sid] = site.get("name", "") if site else ""
+        s["site_name"] = site_names.get(sid, "")
+    return systems
+
+
 async def get_system(workspace_id: str, system_id: str) -> dict:
     return await _get_or_404(workspace_id, system_id)
 

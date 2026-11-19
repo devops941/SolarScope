@@ -7,6 +7,7 @@ import { qk } from "@/lib/query-client";
 export interface SolarSystem {
   id: string;
   site_id: string;
+  site_name?: string;
   workspace_id: string;
   name: string;
   dc_capacity_kwp: number;
@@ -36,6 +37,18 @@ export interface SystemCreate {
 }
 
 // ── Queries ─────────────────────────────────────────────────────────
+export function useAllSystems(siteId?: string) {
+  return useQuery<SolarSystem[]>({
+    queryKey: qk.systems.all(siteId),
+    queryFn: async () => {
+      const { data } = await apiClient.get("/systems", {
+        params: siteId ? { site_id: siteId } : undefined,
+      });
+      return data;
+    },
+  });
+}
+
 export function useSystemsBySite(siteId: string) {
   return useQuery<SolarSystem[]>({
     queryKey: qk.systems.bySite(siteId),
@@ -67,8 +80,10 @@ export function useCreateSystem(siteId: string) {
       return data;
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["systems"] });
       qc.invalidateQueries({ queryKey: qk.systems.bySite(siteId) });
       qc.invalidateQueries({ queryKey: qk.sites.detail(siteId) });
+      qc.invalidateQueries({ queryKey: ["sites"] });
     },
   });
 }

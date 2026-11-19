@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
+import { getToken } from "@/lib/auth";
 
 export interface Report {
   id: string;
@@ -31,6 +32,13 @@ export function useReports(page = 1) {
     queryFn: async () => {
       const { data } = await apiClient.get("/reports", { params: { page, page_size: 50 } });
       return data;
+    },
+    refetchInterval: (query) => {
+      const reports = query.state.data?.items ?? [];
+      const hasActive = reports.some(
+        (r) => r.status === "queued" || r.status === "generating"
+      );
+      return hasActive ? 2500 : false;
     },
   });
 }
@@ -71,7 +79,23 @@ export function useCreateReport() {
   });
 }
 
+export async function downloadReportFile(reportId: string, filename: string): Promise<void> {
+  const { data } = await apiClient.get(`/reports/${reportId}/download`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([data]);
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export function getDownloadUrl(reportId: string): string {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
-  return `${base}/api/v1/reports/${reportId}/download`;
+  const token = typeof window !== "undefined" ? getToken() : null;
+  return `${base}/api/v1/reports/${reportId}/download${token ? `?token=${token}` : ""}`;
 }

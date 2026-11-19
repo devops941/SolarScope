@@ -21,6 +21,12 @@ class SystemsRepository(BaseRepository):
             workspace_id, {"site_id": site_id}, limit=200, sort=[("name", 1)]
         )
 
+    async def list_all(self, workspace_id: str, site_id: str | None = None) -> list[dict]:
+        query = {"site_id": site_id} if site_id else {}
+        return await self.find_many_scoped(
+            workspace_id, query, limit=500, sort=[("name", 1)]
+        )
+
     async def get(self, workspace_id: str, system_id: str) -> dict | None:
         return await self.find_one_scoped(workspace_id, system_id)
 

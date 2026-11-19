@@ -38,6 +38,7 @@ class SystemUpdate(BaseModel):
 class SystemResponse(BaseModel):
     id: str
     site_id: str
+    site_name: str | None = None
     workspace_id: str
     name: str
     dc_capacity_kwp: float

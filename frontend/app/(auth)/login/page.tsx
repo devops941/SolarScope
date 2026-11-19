@@ -1,27 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Eye, EyeSlash, CircleNotch, WarningCircle } from "@phosphor-icons/react";
+import { Eye, EyeOff, Zap, Loader2, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/features/auth/useAuth";
 
 export default function LoginPage() {
   const { login, loading, error } = useAuth();
-  const searchParams = useSearchParams();
-  const isExpired = searchParams.get("expired") === "true";
-
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("gokul@solarscope.local");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [formError, setFormError] = useState("");
-
-  // Calculate sun position on horizon from user local time
-  const [localHour, setLocalHour] = useState(13);
-  useEffect(() => {
-    const now = new Date();
-    setLocalHour(now.getHours() + now.getMinutes() / 60);
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,188 +22,229 @@ export default function LoginPage() {
     try {
       await login({ email, password });
     } catch {
-      // error surfaced via useAuth().error
+      // error is surfaced via useAuth().error
     }
   }
 
   const displayError = formError || error;
 
-  // Horizon geometry
-  const sunrise = 6.0;
-  const sunset = 18.5;
-  const clampedH = Math.max(sunrise, Math.min(localHour, sunset));
-  const sunFraction = (clampedH - sunrise) / (sunset - sunrise); // 0 to 1
-
   return (
-    <div className="relative min-h-screen bg-paper text-ink flex flex-col justify-between overflow-hidden select-none font-sans">
-      {/* Expired Session Banner (Sun-wash strip on top) */}
-      {isExpired && (
-        <div className="w-full bg-magenta-wash border-b border-magenta/30 px-6 py-2.5 text-xs font-mono text-magenta-deep flex items-center justify-center gap-2">
-          <WarningCircle size={14} weight="bold" />
-          <span>SESSION EXPIRED — PLEASE SIGN IN TO RE-AUTHENTICATE TELEMETRY STREAM</span>
-        </div>
-      )}
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden bg-gradient-to-br from-[#EAF2F4] via-[#F3F7F8] to-[#E3EFEA]">
+      {/* Ambient background energy orbs */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-solar-green/15 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] rounded-full bg-primary-teal/20 blur-3xl pointer-events-none" />
 
-      {/* Top Header: Brand in Unbounded */}
-      <header className="p-8 sm:p-12 z-10 flex items-start justify-between">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-ink uppercase">
-            SOLARSCOPE
-          </h1>
-          <p className="font-mono text-[11px] uppercase tracking-widest text-muted mt-1">
-            SOLAR PERFORMANCE INTELLIGENCE · ALMANAC & INSTRUMENT
-          </p>
-        </div>
-
-        <div className="hidden sm:block text-right font-mono text-xs text-muted">
-          <p>EDITION: PERIHELION EDGE</p>
-          <p>LOCAL TIME: {Math.floor(localHour)}:{String(Math.floor((localHour % 1) * 60)).padStart(2, "0")}</p>
-        </div>
-      </header>
-
-      {/* Center Main: Credentials Rectangle (under horizon line) */}
-      <main className="z-10 px-6 max-w-md w-full mx-auto my-auto">
-        <div className="bg-surface border border-rule p-8 rounded-[2px] shadow-xs">
-          <div className="border-b border-rule pb-4 mb-6">
-            <h2 className="font-display text-lg font-bold tracking-tight text-ink uppercase">
-              AUTHENTICATION
-            </h2>
-            <p className="font-sans text-xs text-muted mt-1">
-              Sign in with your workspace credentials
-            </p>
-          </div>
-
-          {/* Error Message */}
-          {displayError && (
-            <div className="mb-5 rounded-[2px] border border-magenta/40 bg-magenta-wash px-3.5 py-2.5 text-xs font-mono text-magenta-deep flex items-start gap-2">
-              <WarningCircle size={16} weight="bold" className="shrink-0 mt-0.5 text-magenta" />
-              <span>{displayError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-1.5">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                placeholder="analyst@solarscope.local"
-                className="w-full rounded-[2px] border border-rule bg-paper px-3.5 py-2.5 text-sm font-sans text-ink placeholder:text-muted/60 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
-              />
+      {/* Main Split Neumorphic Card */}
+      <div className="w-full max-w-[1020px] min-h-[620px] rounded-[32px] bg-white shadow-[0_30px_70px_-15px_rgba(18,50,71,0.22)] border border-white/80 overflow-hidden flex flex-col lg:flex-row relative z-10">
+        {/* ── LEFT PANEL: Clean Neumorphic Sign-in Form ── */}
+        <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-14 flex flex-col justify-between bg-[#F8FAFC]">
+          <div>
+            {/* Top brand icon for mobile */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary-teal to-solar-green text-white shadow-md shadow-solar-green/20">
+                <Zap className="h-5 w-5" />
+              </div>
+              <span className="text-base font-bold text-app-text tracking-tight">
+                SolarScope
+              </span>
+              <span className="rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 ml-1">
+                v2.4
+              </span>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted">
-                  Password
-                </label>
-                <Link
-                  href="/register"
-                  className="text-xs font-mono text-magenta hover:text-magenta-deep hover:underline"
-                >
-                  Forgot?
-                </Link>
+            {/* Title */}
+            <div className="text-center my-8">
+              <h2 className="text-3xl font-extrabold text-app-text tracking-tight">
+                Sign in
+              </h2>
+              <p className="text-xs text-muted mt-2">
+                Access your solar fleet operations &amp; telemetry
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {displayError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 shadow-xs">
+                {displayError}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email Input */}
+              <div className="space-y-1.5">
+                <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    autoComplete="email"
+                    required
+                    className="w-full bg-transparent px-5 py-3.5 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  className="w-full rounded-[2px] border border-rule bg-paper pl-3.5 pr-10 py-2.5 text-sm font-mono text-ink placeholder:text-muted/60 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-magenta transition"
-                />
+              {/* Password Input */}
+              <div className="space-y-1.5">
+                <div className="relative rounded-2xl bg-[#EEF3F6] shadow-[inset_2px_2px_5px_rgba(18,50,71,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.9)] border border-slate-200/40 transition-all focus-within:ring-2 focus-within:ring-primary-teal/40">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    autoComplete="current-password"
+                    required
+                    className="w-full bg-transparent px-5 py-3.5 pr-12 text-sm text-app-text placeholder:text-muted/70 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-app-text transition"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button (Soft Neumorphic Embossed Pill) */}
+              <div className="pt-2 text-center">
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-teal to-solar-green px-12 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-[0_10px_20px_-5px_rgba(19,124,112,0.4),0_4px_8px_rgba(43,167,132,0.2)] hover:brightness-105 active:scale-[0.98] disabled:opacity-60 transition-all cursor-pointer"
                 >
-                  {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <span>{loading ? "Signing in…" : "SIGN IN"}</span>
                 </button>
               </div>
+            </form>
+
+            {/* Forgot password */}
+            <div className="text-center mt-4">
+              <a
+                href="#forgot"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert("Please contact your workspace administrator to reset your password.");
+                }}
+                className="text-xs text-muted hover:text-primary-teal transition-colors"
+              >
+                Forgot your password?
+              </a>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-2 rounded-[2px] bg-magenta hover:bg-magenta-deep text-white py-3 text-xs font-sans uppercase font-bold tracking-widest transition disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <CircleNotch size={14} className="animate-spin" />
-                  <span>AUTHENTICATING…</span>
-                </>
-              ) : (
-                <span>SIGN IN TO SOLAR ALMANAC</span>
-              )}
-            </button>
-          </form>
+            {/* Quick Demo Credentials 1-Click Auto-fill */}
+            <div className="mt-6 pt-5 border-t border-slate-200/60">
+              <div className="rounded-2xl border border-solar-green/30 bg-pale-mint/60 p-3.5 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary-teal flex items-center gap-1.5">
+                    <Zap className="h-3.5 w-3.5 fill-solar-green text-solar-green" /> Demo Access
+                  </span>
+                  <span className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-semibold text-solar-green border border-solar-green/20">
+                    Click to Auto-fill
+                  </span>
+                </div>
 
-          <div className="mt-6 pt-4 border-t border-rule flex items-center justify-between text-xs text-muted font-sans">
-            <span>New workspace?</span>
-            <Link href="/register" className="font-semibold text-magenta-deep hover:underline">
-              Create an account →
-            </Link>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail("admin@gmail.com");
+                      setPassword("password123");
+                      setFormError("");
+                    }}
+                    className="flex flex-col items-start p-2.5 rounded-xl border border-border bg-white hover:border-solar-green hover:shadow-xs text-left transition-all cursor-pointer active:scale-[0.98]"
+                  >
+                    <span className="text-xs font-bold text-app-text">Admin Account</span>
+                    <span className="text-[10px] text-muted truncate w-full mt-0.5">admin@gmail.com</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail("analyst@solarscope.io");
+                      setPassword("password123");
+                      setFormError("");
+                    }}
+                    className="flex flex-col items-start p-2.5 rounded-xl border border-border bg-white hover:border-solar-green hover:shadow-xs text-left transition-all cursor-pointer active:scale-[0.98]"
+                  >
+                    <span className="text-xs font-bold text-app-text">Analyst Account</span>
+                    <span className="text-[10px] text-muted truncate w-full mt-0.5">analyst@solarscope.io</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick link on mobile to sign up */}
+          <div className="mt-6 pt-4 border-t border-border/60 text-center lg:hidden">
+            <p className="text-xs text-muted">
+              Don't have an account?{" "}
+              <Link href="/register" className="font-bold text-primary-teal hover:underline">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
-      </main>
 
-      {/* Bottom Horizon Arc Graphic (SVG) */}
-      <div className="w-full h-36 relative pointer-events-none select-none overflow-hidden">
-        <svg viewBox="0 0 1440 144" className="w-full h-full preserve-3d" preserveAspectRatio="none">
-          {/* Horizon Line */}
-          <line x1="0" y1="110" x2="1440" y2="110" stroke="#E3E1E6" strokeWidth="1.5" />
+        {/* ── RIGHT PANEL: SolarScope Theme Vibrant Welcome Panel ── */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 lg:p-14 relative overflow-hidden bg-gradient-to-br from-[#0D212F] via-[#137C70] to-[#2BA784] text-white">
+          {/* Decorative ambient glowing solar rings */}
+          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-white/10 bg-white/5 blur-xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full border border-emerald-400/20 bg-solar-green/10 blur-2xl pointer-events-none" />
 
-          {/* Half-circle horizon arc */}
-          <path
-            d="M 120,110 Q 720,-30 1320,110"
-            fill="none"
-            stroke="#FBE8F3"
-            strokeWidth="3"
-            strokeDasharray="4,4"
-          />
+          {/* Top Status Pill */}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-3.5 py-1 text-xs font-semibold text-emerald-200 border border-white/20">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>IEC 61724 Certified Engine</span>
+            </div>
+            <span className="text-xs font-mono text-white/50">v2.4</span>
+          </div>
 
-          {/* Dynamic Sun Position on Horizon */}
-          {(() => {
-            const t = sunFraction;
-            const x = 120 + t * (1320 - 120);
-            // Parabolic curve: peak at t=0.5 where y=10
-            const y = 110 - 4 * (110 - 10) * t * (1 - t);
+          {/* Center Welcome Content */}
+          <div className="relative z-10 my-auto py-8 text-center space-y-4">
+            <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              Welcome To<br />
+              <span className="text-emerald-300 drop-shadow-sm">SolarScope!</span>
+            </h1>
 
-            return (
-              <g style={{ transition: "all 600ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
-                <circle cx={x} cy={y} r="18" fill="#F08A00" opacity="0.15" />
-                <circle cx={x} cy={y} r="8" fill="#F08A00" stroke="#FFFFFF" strokeWidth="2" />
-                <text
-                  x={x}
-                  y={y - 14}
-                  fontSize="9"
-                  fontFamily="Azeret Mono"
-                  fill="#F08A00"
-                  textAnchor="middle"
-                  fontWeight="bold"
-                >
-                  SOLAR ALTITUDE
-                </text>
-              </g>
-            );
-          })()}
+            <p className="text-sm text-white/80 max-w-sm mx-auto leading-relaxed">
+              Solar Panel Performance Intelligence, Sensor Telemetry &amp; Energy Efficiency Analysis Platform.
+            </p>
 
-          {/* Tick Labels */}
-          <text x="120" y="126" fontSize="10" fontFamily="Azeret Mono" fill="#6B6571">
-            06:00 DAWN
-          </text>
-          <text x="720" y="126" fontSize="10" fontFamily="Azeret Mono" fill="#6B6571" textAnchor="middle">
-            12:00 ZENITH
-          </text>
-          <text x="1320" y="126" fontSize="10" fontFamily="Azeret Mono" fill="#6B6571" textAnchor="end">
-            18:30 DUSK
-          </text>
-        </svg>
+            <div className="pt-4">
+              <p className="text-xs font-medium text-white/70 mb-3 uppercase tracking-wider">
+                New Here?
+              </p>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-white/40 bg-white/10 backdrop-blur-md px-10 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg hover:bg-white/20 hover:border-white active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <span>SIGN UP</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Bottom Fleet Highlights */}
+          <div className="relative z-10 grid grid-cols-3 gap-3 border-t border-white/15 pt-5 text-center">
+            <div>
+              <p className="text-lg font-bold text-emerald-300">100%</p>
+              <p className="text-[10px] text-white/60">Fleet Operational</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-white">15 min</p>
+              <p className="text-[10px] text-white/60">Sampling Rate</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-emerald-300">&gt; 80%</p>
+              <p className="text-[10px] text-white/60">PR Benchmark</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

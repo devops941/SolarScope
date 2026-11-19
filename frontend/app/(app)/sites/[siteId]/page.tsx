@@ -20,7 +20,7 @@ export default function SiteDetailPage({ params }: { params: { siteId: string } 
 
   if (siteLoading) {
     return (
-      <div className="max-w-[1200px] mx-auto space-y-4">
+      <div className="w-full space-y-4">
         <div className="h-5 w-24 bg-canvas rounded animate-pulse" />
         <SkeletonCard />
         <SkeletonCard />
@@ -30,7 +30,7 @@ export default function SiteDetailPage({ params }: { params: { siteId: string } 
 
   if (!site) {
     return (
-      <div className="max-w-[1200px] mx-auto">
+      <div className="w-full">
         <Link href="/sites" className="flex items-center gap-1 text-sm text-muted hover:text-app-text mb-4">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Sites
         </Link>
@@ -45,7 +45,7 @@ export default function SiteDetailPage({ params }: { params: { siteId: string } 
   const totalAcKw = systems.reduce((s, sys) => s + sys.ac_capacity_kw, 0);
 
   return (
-    <div className="max-w-[1200px] mx-auto space-y-5">
+    <div className="w-full space-y-5">
       {/* Back + header */}
       <div>
         <Link href="/sites" className="flex items-center gap-1 text-sm text-muted hover:text-app-text mb-3">

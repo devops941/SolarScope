@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Upload, Download, FileText, RefreshCw, RotateCcw, Sparkles, Zap, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Download, FileText, RefreshCw, RotateCcw } from "lucide-react";
 import StatusBadge, { importStatusVariant } from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import ImportProgress from "@/features/imports/ImportProgress";
 import RollbackDialog from "@/features/imports/RollbackDialog";
 import { useImportsList } from "@/features/imports/useImports";
-import { useDemoSeed } from "@/features/demo/useDemoSeed";
 
 function CountBadge({ n, variant }: { n: number; variant: "success" | "danger" | "muted" }) {
   if (n === 0) return <span className="text-muted">—</span>;
@@ -23,11 +22,9 @@ export default function ImportsPage() {
   const [rollbackTarget, setRollbackTarget] = useState<any | null>(null);
   const [progressImportId, setProgressImportId] = useState<string | null>(null);
 
-  const { seedDemo, isSeeding, successMessage, error: seedError } = useDemoSeed();
-
   if (isLoading) {
     return (
-      <div className="max-w-[1280px] mx-auto">
+      <div className="w-full space-y-6">
         <div className="h-8 w-32 bg-canvas rounded animate-pulse mb-5" />
         <SkeletonTable rows={4} />
       </div>
@@ -35,22 +32,7 @@ export default function ImportsPage() {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto space-y-6">
-      {/* Notifications */}
-      {successMessage && (
-        <div className="flex items-center gap-2 rounded-xl bg-pale-mint border border-solar-green/30 px-4 py-3 text-sm text-deep-teal">
-          <CheckCircle2 className="h-4 w-4 text-solar-green shrink-0" />
-          <span className="font-medium">{successMessage}</span>
-        </div>
-      )}
-
-      {seedError && (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-danger/30 px-4 py-3 text-sm text-danger">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>Failed to seed dataset: {seedError}</span>
-        </div>
-      )}
-
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -72,25 +54,6 @@ export default function ImportsPage() {
             className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-muted hover:bg-canvas transition"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-
-          {/* 1-Click Demo Ingest */}
-          <button
-            onClick={() => seedDemo()}
-            disabled={isSeeding}
-            className="flex items-center gap-1.5 rounded-lg border border-solar-green/30 bg-pale-mint/80 px-3.5 py-2 text-sm font-semibold text-primary-teal hover:bg-pale-mint transition disabled:opacity-50"
-          >
-            {isSeeding ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin text-primary-teal" />
-                <span>Ingesting 30-Day CSV…</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 text-solar-green" />
-                <span>⚡ Load 30-Day Demo CSV</span>
-              </>
-            )}
           </button>
 
           <a
@@ -118,34 +81,24 @@ export default function ImportsPage() {
           </div>
           <h3 className="text-lg font-semibold text-app-text mb-1">No Telemetry Ingested Yet</h3>
           <p className="text-sm text-muted max-w-md mx-auto mb-6">
-            Upload custom inverter CSV logs, or instantly load 30 days of pre-cleaned 15-minute sensor data with zero configuration.
+            Upload inverter CSV telemetry logs to analyze solar performance and sensor metrics.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => seedDemo()}
-              disabled={isSeeding}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition disabled:opacity-50"
-            >
-              {isSeeding ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Loading Demo CSV…</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 text-solar-green" />
-                  <span>⚡ Ingest 30-Day Demo Dataset</span>
-                </>
-              )}
-            </button>
-
             <Link
               href="/imports/new"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-app-text hover:bg-canvas transition"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary-teal px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-deep-teal transition"
             >
               <Upload className="h-4 w-4" /> Upload Custom CSV
             </Link>
+
+            <a
+              href="/api/v1/imports/template"
+              download
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-medium text-app-text hover:bg-canvas transition"
+            >
+              <Download className="h-4 w-4 text-muted" /> Download Blank Template
+            </a>
           </div>
 
           {/* Quick Specification Box */}
